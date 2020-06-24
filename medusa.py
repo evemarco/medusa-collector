@@ -127,7 +127,7 @@ class MedusaClient :
 	
 	def setup_watch_loop_thread(self, fname) :
 		print("setup_watch_loop_thread : " + fname)
-		f = open(fname, "r")
+		f = open(fname, "r", encoding='utf8')
 		session_owner = self.parse_session_owner(f)
 		if session_owner is None : 
 			print("could not find session owner. Ignoring file")
