@@ -162,14 +162,18 @@ class MedusaClient :
 			logs_dirs.append("~/.local/share/Steam/steamapps/compatdata/8500/pfx/drive_c/users/steamuser/My Documents/EVE/logs")
 		
 		for d in logs_dirs :
-			gamelogs_dir_path = os.path.join(d, "Gamelogs")
-			flist = os.listdir(gamelogs_dir_path)
-			flist = list(filter(lambda x : x.endswith('.txt'), flist)) # filter .txt files
-			yesterday = datetime.datetime.now() - datetime.timedelta(days = 1)
-			time_filter_comp = "{:04}{:02}{:02}_{:02}{:02}{:02}.txt".format( yesterday.year, yesterday.month, yesterday.day, yesterday.hour, yesterday.minute, yesterday.second )
-			flist = list(filter(lambda x : x > time_filter_comp, flist)) # filter files that are les than 24h old
-			if self.debug : print("found " + str(len(flist)) + " files that are less than 24h old")
-			r = r + [os.path.join(gamelogs_dir_path, x) for x in flist]
+			try : 
+				gamelogs_dir_path = os.path.join(d, "Gamelogs")
+				flist = os.listdir(gamelogs_dir_path)
+				flist = list(filter(lambda x : x.endswith('.txt'), flist)) # filter .txt files
+				yesterday = datetime.datetime.now() - datetime.timedelta(days = 1)
+				time_filter_comp = "{:04}{:02}{:02}_{:02}{:02}{:02}.txt".format( yesterday.year, yesterday.month, yesterday.day, yesterday.hour, yesterday.minute, yesterday.second )
+				flist = list(filter(lambda x : x > time_filter_comp, flist)) # filter files that are les than 24h old
+				if self.debug : print("found " + str(len(flist)) + " files that are less than 24h old")
+				r = r + [os.path.join(gamelogs_dir_path, x) for x in flist]
+			except FileNotFoundError : 
+				print("Warning directory not found : " + sys.exc_info()[1])
+		if (len(r) == 0) : print("Warning : no game log files were found")
 		return r
 	
 	def refresh_watchers(self) :
@@ -632,7 +636,9 @@ if __name__ == "__main__" :
 
 		if sys.argv[i] == "-d" or sys.argv[i] == "--debug" : debug_mode = True
 
-
+	if server_bind_addr == "auto" : server_bind_addr = socket.gethostname()
+	
+	
 	print ("")
 	print ("###### Welcome to Medusa ######")
 	print ("")
@@ -641,8 +647,8 @@ if __name__ == "__main__" :
 	print ("-r <filename> for --replay <filename> (" + str(client_replay_filename) + ") : replay file instead of scanning for live game logs (ignored for server mode")
 	print ("")
 	print ("-s or --server (" + str(server_mode) + ") : run as server")
-	print ("-b <server address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") : server address to bind to (ignored for client mode)")
-	print ("-c <port number> or --server-bind-port <port number> (" + str(server_bind_port) + ") : server port to connect to (ignored for client mode)")
+	print ("-b <local address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") : server address to bind to (can be \"auto\")(ignored for client mode)")
+	print ("-c <port number> or --server-bind-port <port number> (" + str(server_bind_port) + ") : server port to bind to (ignored for client mode)")
 	print ("-f <filename> or --replay-filename <filename> (" + str(server_replay_logs_output_fname) + ") : write logs in profided filename for later replay")
 	print ("")
 	print ("-1 or --single (" + str(single_mode) + ") : run as client and server at the same time")

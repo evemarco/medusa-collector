@@ -22,8 +22,8 @@ Using Command Line Arguments :
 	-r <filename> for --replay <filename> : replay file instead of scanning for live game logs (ignored for server mode")
 
 	-s or --server : run as server")
-	-b <server address> or --server-bind-addr <local address> : server address to bind to (ignored for client mode)")
-	-c <port number> or --server-bind-port <port number> : server port to connect to (ignored for client mode)")
+	-b <local address> or --server-bind-addr <local address> : server address to bind to (ignored for client mode)")
+	-c <port number> or --server-bind-port <port number> : server port to bind to (ignored for client mode)")
 	-f <filename> or --replay-filename <filename> : write logs in profided filename for later replay")
 
 	-1 or --single : run as client and server at the same time")
