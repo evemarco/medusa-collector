@@ -17,16 +17,17 @@ Installing and First Use :
 	
 Using Command Line Arguments :
 
-	-u <server address> or --server-url <server address> : server address to connect to (ignored for server mode)")
-	-p <port number> or --server-port <port number> : server port to connect to (ignored for server mode)")
-	-r <filename> for --replay <filename> : replay file instead of scanning for live game logs (ignored for server mode")
+	-u <server address> or --server-url <server address> : server address to connect to (ignored for server mode)
+	-p <port number> or --server-port <port number> : server port to connect to (ignored for server mode)
+	-l <directory path> or --logs-dir <directory path> : path to the Eve logs directory (ignored for server mode)
+	-r <filename> for --replay <filename> : replay file instead of scanning for live game logs (ignored for server mode
 
 	-s or --server : run as server")
-	-b <local address> or --server-bind-addr <local address> : server address to bind to (ignored for client mode)")
-	-c <port number> or --server-bind-port <port number> : server port to bind to (ignored for client mode)")
-	-f <filename> or --replay-filename <filename> : write logs in profided filename for later replay")
+	-b <local address> or --server-bind-addr <local address> : server address to bind to (ignored for client mode)
+	-c <port number> or --server-bind-port <port number> : server port to bind to (ignored for client mode)
+	-f <filename> or --replay-filename <filename> : write logs in profided filename for later replay
+	
+	-1 or --single : run as client and server at the same time
 
-	-1 or --single : run as client and server at the same time")
-
-	-d or --debug : various information, helpful for devs to diagnose bugs")
+	-d or --debug : various information, helpful for devs to diagnose bugs
 
