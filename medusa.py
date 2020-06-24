@@ -490,7 +490,10 @@ class MedusaServer :
 		print(json.dumps(status_info), file=open("status_info.json", "w"))
 		# send status info to every subscriber
 		self.subscribers_lock.acquire()
-		for sid in self.subscribers : self.socketio_server.emit("status_update", json.dumps(status_info))
+		for sid in self.subscribers : 
+			try : self.socketio_server.emit("status_update", json.dumps(status_info))
+			except : 
+				print ("Warning in broadcast_status_info : sid = " + sid + ", " + sys.exc_info()[0] + ":" + sys.exc_info()[0])
 		self.subscribers_lock.release()
 	
 	def dump_replay_logs(self, col, replay_logs_output) :
@@ -584,7 +587,7 @@ class MedusaServer :
 		self.disconnected_clients = {}
 		self.disconnected_clients_lock = threading.Lock()
 		
-		self.subscribers = {}
+		self.subscribers = []
 		self.subscribers_lock = threading.Lock()
 		
 		self.main_collection = {}
