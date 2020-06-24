@@ -146,6 +146,8 @@ class MedusaClient :
 	def get_log_file_path_list(self) :
 		# look for eve online log files
 		logs_dirs = []
+		if self.client_dir_path is not None :
+			logs_dirs.append(client_dir_path)
 		r = []
 		if platform.system() == "Darwin":
 			# OS X
@@ -206,8 +208,9 @@ class MedusaClient :
 		else :
 			self.refresh_watchers_loop()
 	
-	def __init__(self, server_addr = "localhost", server_port = 1877, replay_filename = None, debug = False) :
+	def __init__(self, client_dir_path = None, server_addr = "localhost", server_port = 1877, replay_filename = None, debug = False) :
 		print ("New MedusaClient")
+		self.client_dir_path = client_dir_path
 		self.debug = debug
 		self.log_entries_queue = queue.Queue();
 		self.watcher_threads = {}
@@ -609,6 +612,7 @@ if __name__ == "__main__" :
 	client_server_addr = "http://localhost"
 	client_server_port = 1877
 	client_replay_filename = None
+	client_dir_path = None
 
 	server_mode = False
 	server_bind_addr = "localhost"
@@ -644,6 +648,7 @@ if __name__ == "__main__" :
 	print ("")
 	print ("-u <server address> or --server-url <server address> (" + client_server_addr + ") : server address to connect to (ignored for server mode)")
 	print ("-p <port number> or --server-port <port number> (" + str(client_server_port) + ") : server port to connect to (ignored for server mode)")
+	print ("-l <directory path> or --logs-dir <directory path> (" + str(client_dir_path) + ") : path to the Eve logs directory (ignored for server mode)")
 	print ("-r <filename> for --replay <filename> (" + str(client_replay_filename) + ") : replay file instead of scanning for live game logs (ignored for server mode")
 	print ("")
 	print ("-s or --server (" + str(server_mode) + ") : run as server")
@@ -671,6 +676,7 @@ if __name__ == "__main__" :
 			debug = debug_mode)
 		threading.Thread(target=server.serve).start()
 		client = MedusaClient(
+			client_dir_path = client_dir_path,
 			server_addr = client_server_addr,
 			server_port = client_server_port,
 			replay_filename = client_replay_filename,
@@ -687,6 +693,7 @@ if __name__ == "__main__" :
 			server.serve()
 		else :
 			client = MedusaClient(
+				client_dir_path = client_dir_path,
 				server_addr = client_server_addr,
 				server_port = client_server_port,
 				replay_filename = client_replay_filename,
