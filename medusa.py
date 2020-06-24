@@ -196,9 +196,9 @@ class MedusaClient :
 		t.start()
 		return t
 	
-	def run() :
-		if replay_filename is not None : # replay mode
-			self.replay_file(replay_filename)
+	def run(self) :
+		if self.replay_filename is not None : # replay mode
+			self.replay_file(self.replay_filename)
 		else :
 			self.refresh_watchers_loop()
 	
@@ -207,6 +207,7 @@ class MedusaClient :
 		self.debug = debug
 		self.log_entries_queue = queue.Queue();
 		self.watcher_threads = {}
+		self.replay_filename = replay_filename
 		
 		self.server_addr = server_addr
 		self.server_port = server_port
@@ -606,7 +607,7 @@ if __name__ == "__main__" :
 	client_replay_filename = None
 
 	server_mode = False
-	server_bind_addr = socket.gethostname()
+	server_bind_addr = "localhost"
 	server_bind_port = 1877
 	server_replay_logs_output_fname = None
 
