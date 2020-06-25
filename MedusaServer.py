@@ -30,17 +30,34 @@ import pprint
 # Broadcasts status_info updates whenever they become available through calling broadcast_status_info.
 # The provided status_info is emited for any socketio client connected to the MedusaBroadcaster instance.
 class MedusaBroadcaster(socketio.Namespace) :
+	
+	def on_connect(self, sid, environ):
+		print("MedusaBroadcaster : " + str(sid) + " connected")
+	def on_disconnect(self, sid):
+		print("MedusaBroadcaster : " + str(sid) + " disconnected")
+	
+	
 	# broadcast a json dump of provided status_info to all clients connected to this namespace
 	def broadcast_status_info(self, status_info) :
+		self.status_info = status_info
 		print(json.dumps(status_info), file=open("status_info.json", "w"))
 		# send status info to every subscriber
-		self.emit("status_update", json.dumps(status_info))
+		#self.emit("status_update", json.dumps(status_info))
+
+	def on_poll_status_info(self, sid) :
+		# send status info to requesting subscriber
+		self.emit("status_update", json.dumps(self.status_info), room=sid)
+
 
 # MedusaCollector class-based namespace and event handlers
 # Connection and event reciever for collecting parsed log information.
 # Instances of the MedusaClient connect to an instance of MedusaCollector to send parsed logs to the server
 # Messages are entered in a shared recieve queue for later aggregation by the main upkeep loop
 class MedusaCollector(socketio.Namespace) :
+	def on_connect(self, sid, environ):
+		print("MedusaCollector : " + str(sid) + " connected")
+	def on_disconnect(self, sid):
+		print("MedusaCollector : " + str(sid) + " disconnected")
 	# 'log_entries_col' event handler
 	def on_log_entries_col(self, sid, payload) :
 		# parse message back to a dict
