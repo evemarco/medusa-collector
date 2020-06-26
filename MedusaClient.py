@@ -28,117 +28,124 @@ import pprint
 import re
 
 
-class MedusaClient :
+class MedusaClient:
 	watch_loop_sleep_time = 1
 	send_loop_sleep_time = 1
 	refresh_watchers_loop_sleep_time = 30
 	# sender thread
-	
-	def make_entries_collection(self) :
+
+	def make_entries_collection(self):
 		r = {}
 		log_entries_count = 0
-		while True : 
-			try : 
-				recursive_merge(self.log_entries_queue.get(block = False), r)
+		while True:
+			try:
+				recursive_merge(self.log_entries_queue.get(block=False), r)
 				log_entries_count += 1
-			except queue.Empty :
+			except queue.Empty:
 				break
-		if r == {} : return None
-		if self.debug : print("make_entries_collection : ready to send next entry collection with " + str(log_entries_count) + " log entries")
-		#if self.debug : pprint.pprint(r)
+		if r == {}: return None
+		if self.debug: print("make_entries_collection : ready to send next entry collection with " +
+		                     str(log_entries_count) + " log entries")
+		# if self.debug : pprint.pprint(r)
 		return r
-	
-	def send_loop(self) :
-		print("thread " + str(threading.get_ident()) + " entering send loop. MedusaClient.send_loop_sleep_time = " + str(MedusaClient.send_loop_sleep_time))
-		while True :
-			payload = self.make_entries_collection();
-			if payload is not None :
-				#if self.debug : print("send_loop : sending collected log entries : ")
-				#if self.debug : pprint.pprint(payload)
-				self.socketio_client.emit("log_entries_col", json.dumps(payload), namespace='/medusacollector')
+
+	def send_loop(self):
+		print("thread " + str(threading.get_ident()) +
+		      " entering send loop. MedusaClient.send_loop_sleep_time = " + str(MedusaClient.send_loop_sleep_time))
+		while True:
+			payload = self.make_entries_collection()
+			if payload is not None:
+				# if self.debug : print("send_loop : sending collected log entries : ")
+				# if self.debug : pprint.pprint(payload)
+				self.socketio_client.emit("log_entries_col", json.dumps(
+				    payload), namespace='/medusacollector')
 			time.sleep(MedusaClient.send_loop_sleep_time)
-	
-	def setup_send_loop_thread(self) :
+
+	def setup_send_loop_thread(self):
 		t = threading.Thread(target=self.send_loop, name="send_loop")
 		t.daemon = True
 		t.start()
 		return t
-	
+
 	# watcher thread
-	
-	def watch_loop(self, f, fname, parser) :
-		print("thread " + str(threading.get_ident()) + " entering watch loop. MedusaClient.watch_loop_sleep_time = " + str(MedusaClient.watch_loop_sleep_time))
-		while fname in self.watcher_threads :
+
+	def watch_loop(self, f, fname, parser):
+		print("thread " + str(threading.get_ident()) +
+		      " entering watch loop. MedusaClient.watch_loop_sleep_time = " + str(MedusaClient.watch_loop_sleep_time))
+		while fname in self.watcher_threads:
 			l = f.readline()
-			if not l : 
+			if not l:
 				time.sleep(MedusaClient.watch_loop_sleep_time)
-			else :
-				if self.debug : print(l)
+			else:
+				if self.debug: print(l)
 				self.log_entries_queue.put(parser.parse(l))
 		f.close()
-	
-	def replay_file(self, fname) :
+
+	def replay_file(self, fname):
 		print("thread " + str(threading.get_ident()) + " entering replay loop.")
 		replay_speedup = 1
 		replay_time = None
-		with open(fname, "r", encoding='utf8') as f :
-			while True :
-				try : l = f.readline()
-				except :
+		with open(fname, "r", encoding='utf8') as f:
+			while True:
+				try: l = f.readline()
+				except:
 					"could not read line"
-				if not l : break
-				else :
-					m = re.match(r"(\[(?P<session_owner>(\w+ ?)+)\])?\s?" + MedusaParser.re_time + "(?P<log_str>.*)", l)
-					if m is None : 
+				if not l: break
+				else:
+					m = re.match(r"(\[(?P<session_owner>(\w+ ?)+)\])?\s?" +
+					             MedusaParser.re_time + "(?P<log_str>.*)", l)
+					if m is None:
 						print("could not read session replay line : \n" + l)
 						continue
 					gdict = m.groupdict()
-					if gdict["session_owner"] is None : 
+					if gdict["session_owner"] is None:
 						parser = MedusaParser(gdict["Unknown"], self.debug)
-					else :
+					else:
 						parser = MedusaParser(gdict["session_owner"], self.debug)
 					log_entry_time = MedusaParser.time_str_to_datetime(gdict['time_str'])
-					if replay_time is None : replay_time = log_entry_time
-					if replay_time > log_entry_time : #! TODO : do it better
-						sleeptime = (log_entry_time - replay_time).total_seconds() / replay_speedup
-						print ("sleeping for" + sleeptime)
+					if replay_time is None: replay_time = log_entry_time
+					if replay_time > log_entry_time:  # ! TODO : do it better
+						sleeptime = (log_entry_time - replay_time).total_seconds() / \
+						             replay_speedup
+						print("sleeping for" + sleeptime)
 						time.sleep(sleeptime)
 					print("new line in replay file : " + l)
-					self.log_entries_queue.put(parser.parse("[ " + gdict["time_str"] + " ]" + gdict["log_str"]))
-	
-	def parse_session_owner(self, f) :
-		while True :
+					self.log_entries_queue.put(parser.parse(
+					    "[ " + gdict["time_str"] + " ]" + gdict["log_str"]))
+
+	def parse_session_owner(self, f):
+		while True:
 			l = f.readline()
-			if not l : return None
+			if not l: return None
 			m = re.match(r"\s*Listener:\s*(?P<session_owner>(\w+ ?)+)", l)
-			if m : 
+			if m:
 				r = m.groupdict()["session_owner"]
 				return r
 		return None
-	
-	def setup_watch_loop_thread(self, fname) :
+
+	def setup_watch_loop_thread(self, fname):
 		print("setup_watch_loop_thread : " + fname)
 		f = open(fname, "r", encoding='utf8')
 		session_owner = self.parse_session_owner(f)
-		if session_owner is None : 
+		if session_owner is None:
 			print("could not find session owner. Ignoring file")
 			return None
-		else : print ("found session owner : " + session_owner)
+		else: print("found session owner : " + session_owner)
 		parser = MedusaParser(session_owner, self.debug)
-		f.seek(0,2)
-		t = threading.Thread(target=self.watch_loop, name="watch_loop " + fname, args = (f,fname, parser))
+		f.seek(0, 2)
+		t = threading.Thread(target=self.watch_loop, name="watch_loop " + fname, args=(f, fname, parser))
 		t.daemon = True
 		t.start()
 		return t
-		return None
-	
+		# return None # return present in precedent line
+
 	# refresh watcher threads thread
-	
-	def get_log_file_path_list(self) :
+
+	def get_log_file_path_list(self):
 		# look for eve online log files
 		logs_dirs = []
-		if self.client_dir_path is not None :
-			logs_dirs.append(client_dir_path)
+		if self.client_dir_path is not None:
+			logs_dirs.append(self.client_dir_path)
 		r = []
 		if platform.system() == "Darwin":
 			# OS X
@@ -147,6 +154,7 @@ class MedusaClient :
 		elif platform.system() == "Windows":
 			# Windows...
 			# print ("detected windows")
+			logs_dirs.append(os.path.join(os.environ['USERPROFILE'], 'Onedrive', 'Documents', 'EVE', 'logs'))
 			logs_dirs.append(os.path.join(os.environ['USERPROFILE'], 'Documents', 'EVE', 'logs'))
 		else :
 			# Linux (or some close cousin)
@@ -165,7 +173,8 @@ class MedusaClient :
 				if self.debug : print("found " + str(len(flist)) + " files that are less than 24h old")
 				r = r + [os.path.join(gamelogs_dir_path, x) for x in flist]
 			except FileNotFoundError : 
-				print("Warning directory not found : " + sys.exc_info()[1])
+				# print("Warning directory not found : " + sys.exc_info()[1]) # error in str concatenation
+				print("Warning directory not found")
 		if (len(r) == 0) : print("Warning : no game log files were found")
 		return r
 	
@@ -203,7 +212,7 @@ class MedusaClient :
 		print ("New MedusaClient")
 		self.client_dir_path = client_dir_path
 		self.debug = debug
-		self.log_entries_queue = queue.Queue();
+		self.log_entries_queue = queue.Queue()
 		self.watcher_threads = {}
 		self.replay_filename = replay_filename
 		

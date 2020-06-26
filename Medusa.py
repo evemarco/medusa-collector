@@ -39,9 +39,10 @@ if __name__ == "__main__" :
 
 
 
-	for i in range(len(sys.argv)) : 
+	for i in range(len(sys.argv)) :
 		if sys.argv[i] == "-u" or sys.argv[i] == "--server-url" : client_server_addr = sys.argv[i+1]
 		if sys.argv[i] == "-p" or sys.argv[i] == "--server-port" : client_server_port = int(sys.argv[i+1])
+		if sys.argv[i] == "-l" or sys.argv[i] == "--logs-dir" : client_dir_path = sys.argv[i+1]
 		if sys.argv[i] == "-r" or sys.argv[i] == "--replay" : client_replay_filename = sys.argv[i+1]
 		
 		if sys.argv[i] == "-s" or sys.argv[i] == "--server" : server_mode = True
