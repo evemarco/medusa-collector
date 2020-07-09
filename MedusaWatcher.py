@@ -2,12 +2,19 @@
 # This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online
 # Author : Tnemelc Abramovich
 
+# system and os
 import sys
 import os
-import socketio
+
+# time management
 import datetime
-import pprint
 import time
+
+# web app setup and networking
+import socketio
+
+# output and formatting
+import pprint
 import json
 
 def clear() : os.system('cls' if os.name == 'nt' else 'clear')

@@ -5,11 +5,16 @@
 # Author : Tnemelc Abramovich
 
 
-import re
+# internal dependencies
+from MedusaGameTime import GameTime
+
+# time management
 import datetime
+
+# output and formatting
+import re
 import pprint
 
-from MedusaGameTime import GameTime
 
 
 # generic recursive merge function :

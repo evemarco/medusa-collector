@@ -2,16 +2,26 @@
 # This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online
 # Author : Tnemelc Abramovich																								 
 
-from socket_io_emitter import Emitter
+# internal dependencies
 from MedusaGameTime import GameTime
-import MedusaParser
 from MedusaStatusInfo import make_status_info
 import MedusaParser
-import datetime
+
+# system and os
 import sys
+
+# time management
+import datetime
+import time
+
+# concurrency management
 import queue
 import threading
-import time
+
+# web app setup and networking
+from socket_io_emitter import Emitter
+
+# output and formatting
 import json
 import pickle
 

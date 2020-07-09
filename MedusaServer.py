@@ -11,9 +11,6 @@ from MedusaWorker import MedusaWorkerThread
 # system and os
 import sys
 
-# output and formatting
-import json
-import pprint
 
 # time management
 import datetime
@@ -27,10 +24,14 @@ import threading
 # web app setup and networking
 import socketio
 import eventlet
-eventlet.monkey_patch()
 #from aiohttp import web
 
+# output and formatting
+import json
+import pprint
 
+# monkeypatch
+eventlet.monkey_patch()
 
 
 # MedusaBroadcaster class-based namespace and event handlers
@@ -72,8 +73,8 @@ class MedusaCollector(socketio.Namespace) :
 
 	# 'log_entries_col' event handler
 	def on_log_entries_col(self, sid, col) :
-		print("on_log_entries_col : recieved new collection : ")
-		pprint.pprint(col)
+		if self.debug : print("on_log_entries_col : recieved new collection : ")
+		if self.debug : pprint.pprint(col)
 		# queue recieved log entries
 		self.shared_recv_queue.put(col)
 		
