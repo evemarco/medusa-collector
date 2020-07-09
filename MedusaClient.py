@@ -1,6 +1,6 @@
 
 # Medusa Collector client
-# This file is a part of the Medusa  project, a real-time combat logs analyzer for Eve Online
+# This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online
 # Author : Tnemelc Abramovich
 
 # internal dependencies
@@ -51,11 +51,11 @@ class MedusaClient :
 	def send_loop(self) :
 		print("thread " + str(threading.get_ident()) + " entering send loop. MedusaClient.send_loop_sleep_time = " + str(MedusaClient.send_loop_sleep_time))
 		while True :
-			payload = self.make_entries_collection();
-			if payload is not None :
-				#if self.debug : print("send_loop : sending collected log entries : ")
-				#if self.debug : pprint.pprint(payload)
-				self.socketio_client.emit("log_entries_col", json.dumps(payload), namespace='/medusacollector')
+			col = self.make_entries_collection();
+			if col is not None :
+				if self.debug : print("send_loop : sending collected log entries : ")
+				if self.debug : pprint.pprint(col)
+				self.socketio_client.emit("log_entries_col", col, namespace='/medusacollector')
 			time.sleep(MedusaClient.send_loop_sleep_time)
 	
 	def setup_send_loop_thread(self) :
@@ -137,8 +137,8 @@ class MedusaClient :
 	def get_log_file_path_list(self) :
 		# look for eve online log files
 		logs_dirs = []
-		if self.client_dir_path is not None :
-			logs_dirs.append(client_dir_path)
+		if self.client_logs_dir_path is not None :
+			logs_dirs.append(self.client_logs_dir_path)
 		r = []
 		if platform.system() == "Darwin":
 			# OS X
@@ -199,9 +199,9 @@ class MedusaClient :
 		else :
 			self.refresh_watchers_loop()
 	
-	def __init__(self, client_dir_path = None, server_addr = "localhost", server_port = 1877, replay_filename = None, debug = False) :
+	def __init__(self, client_logs_dir_path = None, server_addr = "localhost", server_port = 1877, replay_filename = None, debug = True) :
 		print ("New MedusaClient")
-		self.client_dir_path = client_dir_path
+		self.client_logs_dir_path = client_logs_dir_path
 		self.debug = debug
 		self.log_entries_queue = queue.Queue();
 		self.watcher_threads = {}

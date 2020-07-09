@@ -1,13 +1,16 @@
 #! /usr/bin/env python3
 
 # Medusa Collector Parser 
-# This file is a part of the Medusa  project, a real-time combat logs analyzer for Eve Online
+# This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online
 # Author : Tnemelc Abramovich
 
 
 import re
 import datetime
 import pprint
+
+from MedusaGameTime import GameTime
+
 
 # generic recursive merge function :
 # if dest and src are dicts, insert items to dest if key does not exist, merge recursively otherwise

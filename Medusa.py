@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Medusa Collector Main Executable for both client and server modes
-# This file is a part of the Medusa  project, a real-time combat logs analyzer for Eve Online
+# This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online
 # Author : Tnemelc Abramovich
 
 # internal dependencies
@@ -25,7 +25,7 @@ if __name__ == "__main__" :
 	client_server_addr = "http://localhost"
 	client_server_port = 1877
 	client_replay_filename = None
-	client_dir_path = None
+	client_logs_dir_path = None
 
 	server_mode = False
 	server_bind_addr = "localhost"
@@ -43,6 +43,7 @@ if __name__ == "__main__" :
 		if sys.argv[i] == "-u" or sys.argv[i] == "--server-url" : client_server_addr = sys.argv[i+1]
 		if sys.argv[i] == "-p" or sys.argv[i] == "--server-port" : client_server_port = int(sys.argv[i+1])
 		if sys.argv[i] == "-r" or sys.argv[i] == "--replay" : client_replay_filename = sys.argv[i+1]
+		if sys.argv[i] == "-l" or sys.argv[i] == "--logs-dir" : client_logs_dir_path = sys.argv[i+1]
 		
 		if sys.argv[i] == "-s" or sys.argv[i] == "--server" : server_mode = True
 		if sys.argv[i] == "-b" or sys.argv[i] == "--server-bind-addr" : server_bind_addr = sys.argv[i+1]
@@ -59,19 +60,19 @@ if __name__ == "__main__" :
 	print ("")
 	print ("###### Welcome to Medusa ######")
 	print ("")
-	print ("-u <server address> or --server-url <server address> (" + client_server_addr + ") : server address to connect to (ignored for server mode)")
-	print ("-p <port number> or --server-port <port number> (" + str(client_server_port) + ") : server port to connect to (ignored for server mode)")
-	print ("-l <directory path> or --logs-dir <directory path> (" + str(client_dir_path) + ") : path to the Eve logs directory (ignored for server mode)")
-	print ("-r <filename> for --replay <filename> (" + str(client_replay_filename) + ") : replay file instead of scanning for live game logs (ignored for server mode")
+	print ("-u <server address> or --server-url <server address> (" + client_server_addr + ") :\n\tserver address to connect to (ignored for server mode)")
+	print ("-p <port number> or --server-port <port number> (" + str(client_server_port) + ") :\n\tserver port to connect to (ignored for server mode)")
+	print ("-l <directory path> or --logs-dir <directory path> (" + str(client_logs_dir_path) + ") :\n\tpath to the Eve logs directory (ignored for server mode)")
+	print ("-r <filename> for --replay <filename> (" + str(client_replay_filename) + ") :\n\treplay file instead of scanning for live game logs (ignored for server mode")
 	print ("")
-	print ("-s or --server (" + str(server_mode) + ") : run as server")
-	print ("-b <local address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") : server address to bind to (can be \"auto\")(ignored for client mode)")
-	print ("-c <port number> or --server-bind-port <port number> (" + str(server_bind_port) + ") : server port to bind to (ignored for client mode)")
-	print ("-f <filename> or --replay-filename <filename> (" + str(server_replay_logs_output_fname) + ") : write logs in profided filename for later replay")
+	print ("-s or --server (" + str(server_mode) + ") :\n\trun as server")
+	print ("-b <local address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") :\n\tserver address to bind to (can be \"auto\")(ignored for client mode)")
+	print ("-c <port number> or --server-bind-port <port number> (" + str(server_bind_port) + ") :\n\tserver port to bind to (ignored for client mode)")
+	print ("-f <filename> or --replay-filename <filename> (" + str(server_replay_logs_output_fname) + ") :\n\twrite logs in profided filename for later replay")
 	print ("")
-	print ("-1 or --single (" + str(single_mode) + ") : run as client and server at the same time")
+	print ("-1 or --single (" + str(single_mode) + ") :\n\trun as client and server at the same time")
 	print ("")
-	print ("-d or --debug (" + str(debug_mode) + ") : various information, helpful for devs to diagnose bugs")
+	print ("-d or --debug (" + str(debug_mode) + ") :\n\tvarious information, helpful for devs to diagnose bugs")
 	print ("")
 	print ("###############################")
 	print ("")
@@ -85,7 +86,7 @@ if __name__ == "__main__" :
 			debug = debug_mode)
 		threading.Thread(target=server.serve).start()
 		client = MedusaClient(
-			client_dir_path = client_dir_path,
+			client_logs_dir_path = client_logs_dir_path,
 			server_addr = client_server_addr,
 			server_port = client_server_port,
 			replay_filename = client_replay_filename,
@@ -101,7 +102,7 @@ if __name__ == "__main__" :
 			server.serve()
 		else :
 			client = MedusaClient(
-				client_dir_path = client_dir_path,
+				client_logs_dir_path = client_logs_dir_path,
 				server_addr = client_server_addr,
 				server_port = client_server_port,
 				replay_filename = client_replay_filename,
