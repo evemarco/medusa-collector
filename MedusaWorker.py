@@ -136,9 +136,4 @@ def MedusaWorkerThread(*args, **kwargs) :
 	print("MedusaWorker online on thread " + str(threading.get_ident()))
 	w = MedusaWorker(*args, **kwargs)
 	w.main_upkeep_loop()
-
-if __name__ == "__main__" :
-	shq_mock = queue.Queue()
-	w = MedusaWorker(shq_mock, "localhost", 6379)
-	w.main_upkeep_loop()
 	
