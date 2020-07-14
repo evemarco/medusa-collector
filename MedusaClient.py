@@ -52,7 +52,7 @@ class MedusaClient:
 		print("thread " + str(threading.get_ident()) + 
 			  " entering send loop. MedusaClient.send_loop_sleep_time = " + str(MedusaClient.send_loop_sleep_time))
 		while True :
-			col = self.make_entries_collection();
+			col = self.make_entries_collection()
 			if col is not None :
 				if self.debug : print("send_loop : sending collected log entries : ")
 				if self.debug : pprint.pprint(col)

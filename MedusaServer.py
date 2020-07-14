@@ -52,7 +52,7 @@ class MedusaBroadcaster(socketio.Namespace) :
 		self.emit("status_update", status_info)
 
 	def on_status_update(self, sid, status_info) :
-		if debug : print ("LOL i got a status update event, and i'm the server !")
+		if self.debug : print ("LOL i got a status update event, and i'm the server !")
 
 	def __init__(self, debug = False) :
 		super().__init__('/medusabroadcaster')
@@ -80,7 +80,7 @@ class MedusaCollector(socketio.Namespace) :
 		
 	# 'strmsg' event handler
 	def on_strmsg(self, sid, msg) :
-		print("MedusaServer : got message from " + self.connected_clients[sid].client_name + " : " + msg)
+		print("MedusaServer : got message from " + self.namespace.connected_clients[sid].client_name + " : " + msg)
 	
 	def __init__(self, shared_recv_queue, debug = False):
 		super().__init__('/medusacollector')

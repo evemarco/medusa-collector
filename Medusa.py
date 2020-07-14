@@ -17,6 +17,10 @@ import threading
 # web app setup and networking
 import socket
 
+# if you want to compile to an exe file with pyinstaller, you must forece these prerequired
+from eventlet.hubs import epolls, kqueue, selects
+from dns import dnssec, e164, hash, namedict, tsigkeyring, update, version, zone
+
 if __name__ == "__main__" :
 
 	client_server_addr = "http://localhost"
