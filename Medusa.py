@@ -25,7 +25,7 @@ if __name__ == "__main__" :
 	client_logs_dir_path = None
 
 	server_mode = False
-	server_bind_addr = "localhost"
+	server_bind_addr = "0.0.0.0"
 	server_bind_port = 1877
 	server_replay_logs_output_fname = None
 
@@ -64,7 +64,7 @@ if __name__ == "__main__" :
 	print ("-r <filename> for --replay <filename> (" + str(client_replay_filename) + ") :\n\treplay file instead of scanning for live game logs (ignored for server mode")
 	print ("")
 	print ("-s or --server (" + str(server_mode) + ") :\n\trun as server")
-	print ("-b <local address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") :\n\tserver address to bind to (can be \"auto\")(ignored for client mode)")
+	print ("-b <local address> or --server-bind-addr <local address> (" + str(server_bind_addr) + ") :\n\tserver address to bind to (ignored for client mode)")
 	print ("-c <port number> or --server-bind-port <port number> (" + str(server_bind_port) + ") :\n\tserver port to bind to (ignored for client mode)")
 	print ("-f <filename> or --replay-filename <filename> (" + str(server_replay_logs_output_fname) + ") :\n\twrite logs in profided filename for later replay")
 	print ("")

@@ -4,7 +4,7 @@
 # Author : Tnemelc Abramovich
 
 # internal dependencies
-from MedusaParser import MedusaParser, recursive_merge
+from MedusaParser import MedusaParser, AgentParser, recursive_merge
 
 # system and os
 import sys
@@ -121,7 +121,32 @@ class MedusaClient:
 				return r
 		return None
 
-	def setup_watch_loop_thread(self, fname):
+	def make_agent_parser(self, session_owner) :
+		logs_dirs = self.get_logs_dirs_path()
+		for dirpath in logs_dirs :
+			fname = os.path.join(os.path.split(dirpath)[0], "Overview", session_owner + ".yaml")
+			try : return AgentParser(overview_filename = fname)
+			except FileNotFoundError: 
+				if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
+
+			fname = os.path.join(os.path.split(dirpath)[0], "Overview", "overview.yaml")
+			try : return AgentParser(overview_filename = fname)
+			except FileNotFoundError: 
+				if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
+
+		fname = session_owner + ".yaml"
+		try : return AgentParser(overview_filename = fname)
+		except FileNotFoundError: 
+			if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
+
+		fname = "overview.yaml"
+		try : return AgentParser(overview_filename = fname)
+		except FileNotFoundError: 
+			if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
+
+		return AgentParser()
+		
+	def setup_watch_loop_thread(self, fname) :
 		print("setup_watch_loop_thread : " + fname)
 		f = open(fname, "r", encoding='utf8')
 		session_owner = self.parse_session_owner(f)
@@ -129,7 +154,7 @@ class MedusaClient:
 			print("could not find session owner. Ignoring file")
 			return None
 		else: print("found session owner : " + session_owner)
-		parser = MedusaParser(session_owner, self.debug)
+		parser = MedusaParser(session_owner, self.make_agent_parser(session_owner), self.debug)
 		f.seek(0, 2)
 		t = threading.Thread(target=self.watch_loop, name="watch_loop " + fname, args=(f, fname, parser))
 		t.daemon = True
@@ -138,13 +163,10 @@ class MedusaClient:
 		# return None # return present in precedent line
 
 	# refresh watcher threads thread
-
-	def get_log_file_path_list(self):
-		# look for eve online log files
+	def get_logs_dirs_path(self) :
 		logs_dirs = []
 		if self.client_logs_dir_path is not None :
 			logs_dirs.append(self.client_logs_dir_path)
-		r = []
 		if platform.system() == "Darwin":
 			# OS X
 			# print ("detected OSX")
@@ -159,6 +181,12 @@ class MedusaClient:
 			# print ("defaulted to linux")
 			logs_dirs.append("~/Documents/EVE/logs/")
 			logs_dirs.append("~/.local/share/Steam/steamapps/compatdata/8500/pfx/drive_c/users/steamuser/My Documents/EVE/logs")
+		return logs_dirs
+
+	def get_log_file_path_list(self):
+		# look for eve online log files
+		logs_dirs = self.get_logs_dirs_path()
+		r = []
 		
 		for d in logs_dirs :
 			try : 
@@ -172,7 +200,7 @@ class MedusaClient:
 				r = r + [os.path.join(gamelogs_dir_path, x) for x in flist]
 			except FileNotFoundError : 
 				# print("Warning directory not found : " + sys.exc_info()[1]) # error in str concatenation
-				print("Warning directory not found")
+				if self.debug : print("Warning directory not found : " + d)
 		if (len(r) == 0) : print("Warning : no game log files were found")
 		return r
 	

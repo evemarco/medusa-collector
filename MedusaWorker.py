@@ -103,7 +103,7 @@ class MedusaWorker :
 		persistance_limit = GameTime.now() - self.dt_persistance
 		for k in self.main_collection.keys() :
 			for kk in self.main_collection[k].keys() :
-				self.main_collection[k][kk] = list(filter(lambda x : MedusaParser.MedusaParser.time_str_to_datetime(x["time_str"]) > persistance_limit, self.main_collection[k][kk]))
+				self.main_collection[k][kk] = list(filter(lambda x : MedusaParser.time_str_to_datetime(x["time_str"]) > persistance_limit, self.main_collection[k][kk]))
 
 		# make status info from the remaining info
 		status_info = make_status_info(self.main_collection, self.dps_window, GameTime.now())
