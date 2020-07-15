@@ -222,7 +222,8 @@ class AgentParser() :
 
 # parser function (dictates the entire server-side data layout)
 class MedusaParser :
-	class MatchingRuleDamage : # simple matching rule definition, used for parsing dps (which do not use overview-dependant formatting)
+
+	class MatchingRuleSimple : # simple matching rule definition, used for parsing dps (which do not use overview-dependant formatting)
 		def match(self, str) :
 			#print("MatchingRuleDamage : attempting match :\n" + self.regexp_str + "\n" + str)
 			return self.regexp.match(str)
@@ -266,22 +267,22 @@ class MedusaParser :
 			#print("\nMatchingRule : init_regexp : \n" + self.test_regexp_str)
 			self.test_regexp = re.compile(self.test_regexp)
 
-		def match(self, str) :
+		def match(self, log_str) :
 			try :
-				return self.regexp.match(str)
+				return self.regexp.match(log_str)
 			except AttributeError :
-				print("self.regexp.match(str) raised AttributeError : ")
+				print("rule " + self.rule_name + " self.regexp.match(log_str) raised AttributeError : ")
 				#pprint.pprint(sys.exc_info())
 				pass
 			# else try init regexp
 			if self.agent_parser.is_init :
 				print("agent_parser is initialized, just finalize initialization and retry")
 				self.init_regexp()
-				return self.match(str) # retry and return match
+				return self.match(log_str) # retry and return match
 			# else try init agent_parser
 			else :
 				# make a test agent string to test default presets initializations against
-				testm = self.test_regexp.match(str)
+				testm = self.test_regexp.match(log_str)
 				if self.debug : print("attempting late agent parser initialization for rule " + self.rule_name)
 				if not testm :
 					return None # if failed, just return none, rule does not match anyway
@@ -289,28 +290,28 @@ class MedusaParser :
 				teststr = gd['agent_src_test'] if 'agent_src_test' in gd else ( gd['agent_target_test'] if 'agent_target_test' in gd else None )
 				if teststr is None : # we should never hit this condition unless ill-formed matching rules
 					print("Whoops, maybe we should take a look into this : ")
-					print("str = " + str)
-					print("self.test_regexp = " + self.test_regexp)
+					print("str = " + log_str)
+					print("self.test_regexp = " + str(self.test_regexp))
 					print("self.test_regexp.match().groupdict() : ")
 					pprint.pprint(gd)
 					return None
 				try :
 					self.agent_parser.initialize(agent_re = AgentParser.preset1, agent_str_example = teststr)
-					return self.match(str) # retry and return match
+					return self.match(log_str) # retry and return match
 				except AgentParser.InitFailException :
 					pass
 				try :
 					self.agent_parser.initialize(agent_re = AgentParser.preset2, agent_str_example = teststr)
-					return self.match(str) # retry and return match
+					return self.match(log_str) # retry and return match
 				except AgentParser.InitFailException :
 					pass
 				try :
 					self.agent_parser.initialize(agent_re = AgentParser.preset3, agent_str_example = teststr)
-					return self.match(str) # retry and return match
+					return self.match(log_str) # retry and return match
 				except AgentParser.InitFailException :
 					pass
 				print("Warning : default late initialization of matching rule " + self.category + ":" + self.rule_name + " failed at finding a working preset for matching string \"" + teststr + "\".")
-				print("When attempting to match log entry : \n  \"" + str + "\"")
+				print("When attempting to match log entry : \n  \"" + log_str + "\"")
 				print("Maybe you should supply an updated overview configuration file instead ?")
 			return None
 
@@ -321,9 +322,9 @@ class MedusaParser :
 		# DAMAGE
 	
 		re_weapon_cycle_out = re_time + " " + re_entry_type_combat + " " + re_color + re_bold + r"(?P<weapon_damage>\d+)" + re_nobold + " " + re_color + re_size + "to" + re_nosize + " " + AgentParser.re_dmg_target() + re_weapon
-		self.matching_rules.append(MedusaParser.MatchingRuleDamage(re_weapon_cycle_out, "dps", "weapon_cycle_out"))
+		self.matching_rules.append(MedusaParser.MatchingRuleSimple(re_weapon_cycle_out, "dps", "weapon_cycle_out"))
 		re_weapon_cycle_in = re_time + " " + re_entry_type_combat + " " + re_color + re_bold + r"(?P<weapon_damage>\d+)" + re_nobold + " " + re_color + re_size + "from" + re_nosize + " " + AgentParser.re_dmg_src() + re_weapon
-		self.matching_rules.append(MedusaParser.MatchingRuleDamage(re_weapon_cycle_in, "dps", "weapon_cycle_in"))
+		self.matching_rules.append(MedusaParser.MatchingRuleSimple(re_weapon_cycle_in, "dps", "weapon_cycle_in"))
 	
 		# [ 2020.06.23 13:08:48 ] (combat) <color=0xff7fffff><b>1800 GJ</b><color=0x77ffffff><font size=10> energy neutralized </font><b><color=0xffffffff>Armageddon &lt;XENA&gt;[BAG8] Raoul Abramovich </b><color=0x77ffffff><font size=10> - Standup Heavy Energy Neutralizer II</font>
 
@@ -474,8 +475,8 @@ class MedusaParser :
 		# OTHERS
 	
 		re_timestamped_other = re_time
-		self.matching_rules.append(("other", "message", re.compile(re_timestamped_other)))
-	
+		self.matching_rules.append(MedusaParser.MatchingRuleSimple(re_timestamped_other, "other", "message"))
+
 	
 	def build_matched_log_entry(self, rule, match_result, log_str) :
 		data = match_result.groupdict()

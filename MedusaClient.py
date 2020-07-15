@@ -123,37 +123,35 @@ class MedusaClient:
 
 	def make_agent_parser(self, session_owner) :
 		logs_dirs = self.get_logs_dirs_path()
+		ov_files = []
 		for dirpath in logs_dirs :
-			fname = os.path.join(os.path.split(dirpath)[0], "Overview", session_owner + ".yaml")
-			try : return AgentParser(overview_filename = fname)
+			ov_files.append(os.path.join(os.path.split(dirpath)[0], "Overview", session_owner + ".yaml"))
+			ov_files.append(os.path.join(os.path.split(dirpath)[0], "Overview", "overview.yaml"))
+		ov_files.append(session_owner + ".yaml")
+		ov_files.append("overview.yaml")
+
+		r = None
+
+		for fname in ov_files :
+			try : 
+				r = AgentParser(overview_filename = fname)
+				print("found overview configuration file :" + fname)
+				break
 			except FileNotFoundError: 
 				if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
 
-			fname = os.path.join(os.path.split(dirpath)[0], "Overview", "overview.yaml")
-			try : return AgentParser(overview_filename = fname)
-			except FileNotFoundError: 
-				if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
-
-		fname = session_owner + ".yaml"
-		try : return AgentParser(overview_filename = fname)
-		except FileNotFoundError: 
-			if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
-
-		fname = "overview.yaml"
-		try : return AgentParser(overview_filename = fname)
-		except FileNotFoundError: 
-			if self.debug : print("Warning : make_agent_parser : file not found : " +  fname)
-
-		return AgentParser()
+		if r == None : print("found no overview setup file, defaulting to late initialization")
+		r = AgentParser()
+		return r
 		
 	def setup_watch_loop_thread(self, fname) :
-		print("setup_watch_loop_thread : " + fname)
+		if self.debug : print("setup_watch_loop_thread : " + fname)
 		f = open(fname, "r", encoding='utf8')
 		session_owner = self.parse_session_owner(f)
 		if session_owner is None:
-			print("could not find session owner. Ignoring file")
+			if self.debug : print("could not find session owner. Ignoring file")
 			return None
-		else: print("found session owner : " + session_owner)
+		else: print("found new log file for character " + session_owner)
 		parser = MedusaParser(session_owner, self.make_agent_parser(session_owner), self.debug)
 		f.seek(0, 2)
 		t = threading.Thread(target=self.watch_loop, name="watch_loop " + fname, args=(f, fname, parser))
