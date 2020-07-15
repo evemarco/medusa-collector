@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 # Medusa Collector Main Executable for both client and server modes
 # This file is a part of the Medusa project, a real-time combat logs analyzer for Eve Online

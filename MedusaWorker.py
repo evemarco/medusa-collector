@@ -27,9 +27,6 @@ import pickle
 
 # The MedusaWorker runs in its own process, poping logs collections from redis, and emiting status infos to the local MedusaServer as they become available.
 class MedusaWorker :
-	# pop a log collection items from the parent process (the medusa server)
-	def get_next_logs_collection(self) :
-		return server_pipe.recv()
 
 	# send status info to the MedusaServer boradcaster service
 	def send_status_info(self, status_info) :
@@ -59,11 +56,11 @@ class MedusaWorker :
 				"error : could not open file " + self.replay_output_fname + " : " + sys.exc_info()[0] + ", disabling replay logs"
 				self.replay_output_fname = None
 
-		if replay_logs_output is not None :
+		if self.replay_output is not None :
 			for e in col.values() :
 				for ee in e.values() :
 					for eee in ee :
-						print("[" + eee["session_owner"] + "]" + eee["log_str"], file=replay_logs_output)
+						print("[" + eee["session_owner"] + "]" + eee["log_str"], file=self.replay_output)
 
    	# returns the least evetime apprearing in logs entries contained in the provided log collections
 	# useful for knowing roughly what is the actual time in eve, to the second-ish, based only on the logs recieved
