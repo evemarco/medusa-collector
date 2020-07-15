@@ -16,20 +16,25 @@ class GameTime :
 	# use on any time you get from the ig logs to make sure we have the sharpest server time estimate
 	# called automagically when parse is used
 	# You can let the function call datetime.now or provide it yourself if you are calling a lot to avoid this overhead 
-	def update_ref(game_time, now = datetime.datetime.now()) :
+	@classmethod
+	def update_ref(cls, game_time, now = datetime.datetime.now()) :
 		tmp = datetime.datetime.now() - game_time
-		if GameTime.dt is None or tmp < GameTime.dt : GameTime.dt = tmp
+		if cls.dt is None or tmp < cls.dt : cls.dt = tmp
 
-	def time_str_to_datetime(time_str) :
+	@classmethod
+	def time_str_to_datetime(cls, time_str) :
 		return datetime.datetime.strptime(time_str,"%Y.%m.%d %H:%M:%S")
 	
-	def parse(str, update_ref = True) : # init from eve logs string
-		tmp = GameTime.time_str_to_datetime(str)
-		if update_ref : GameTime.update_ref(tmp)
+	@classmethod
+	def parse(cls, str, update_ref = True) : # init from eve logs string
+		tmp = cls.time_str_to_datetime(str)
+		if update_ref : cls.update_ref(tmp)
 		return tmp
 	
-	def now() :
-		if GameTime.dt is None : return datetime.datetime.utcnow()
-		return datetime.datetime.now() - GameTime.dt
+	@classmethod
+	def now(cls) :
+		if cls.dt is None : return datetime.datetime.utcnow()
+		return datetime.datetime.now() - cls.dt
 
-	def now_str() : return GameTime.now().strftime("%Y.%m.%d %H:%M:%S")
+	@classmethod
+	def now_str(cls) : return cls.now().strftime("%Y.%m.%d %H:%M:%S")

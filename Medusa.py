@@ -37,8 +37,7 @@ if __name__ == "__main__" :
 	single_mode = False
 
 	debug_mode = False # TODO : set default value to false
-
-
+ 
 
 	for i in range(len(sys.argv)) :
 		if sys.argv[i] == "-u" or sys.argv[i] == "--server-url" : client_server_addr = sys.argv[i+1]

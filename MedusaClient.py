@@ -4,7 +4,7 @@
 # Author : Tnemelc Abramovich
 
 # internal dependencies
-from MedusaParser import MedusaParser, AgentParser, recursive_merge
+from MedusaParser import MedusaParser, AgentParser, recursive_merge, re_time, time_str_to_datetime
 
 # system and os
 import sys
@@ -91,7 +91,7 @@ class MedusaClient:
 				if not l: break
 				else:
 					m = re.match(r"(\[(?P<session_owner>(\w+ ?)+)\])?\s?" +
-					             MedusaParser.re_time + "(?P<log_str>.*)", l)
+					             re_time + "(?P<log_str>.*)", l)
 					if m is None:
 						print("could not read session replay line : \n" + l)
 						continue
@@ -100,7 +100,7 @@ class MedusaClient:
 						parser = MedusaParser(gdict["Unknown"], self.debug)
 					else:
 						parser = MedusaParser(gdict["session_owner"], self.debug)
-					log_entry_time = MedusaParser.time_str_to_datetime(gdict['time_str'])
+					log_entry_time = time_str_to_datetime(gdict['time_str'])
 					if replay_time is None: replay_time = log_entry_time
 					if replay_time > log_entry_time:  # ! TODO : do it better
 						sleeptime = (log_entry_time - replay_time).total_seconds() / \

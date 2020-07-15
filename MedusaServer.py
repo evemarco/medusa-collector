@@ -140,6 +140,8 @@ class MedusaServer :
 	
 
 if __name__ == "__main__" :
+	eventlet.monkey_patch()
+
 	callargs = []
 	callargs.append("python")
 	callargs.append(sys.argv[0].replace("MedusaServer.py", "Medusa.py"))

@@ -101,7 +101,8 @@ class AgentParser() :
 	preset3 = r" \[(P?<agent_corp_ticker>" + re_name + r")\](P?<agent_pilot>" + re_name + r")(&lt;(?P<agent_alliance_ticker>" + re_name + r")&gt;)?"
 
 #	import MedusaParser; MedusaParser.AgentParser.get_LabelOrder_from_overview("C:\\Users\\Fontenaille\\Documents\\EVE\\Overview\\raoul_abramovich_2020-06-25.yaml")
-	def get_LabelOrder_from_overview(from_overview_filename) :
+	@classmethod
+	def get_LabelOrder_from_overview(cls, from_overview_filename) :
 		f = open(from_overview_filename, "r")
 		y = yaml.load(f.read())
 		labelOrder = y['shipLabelOrder']
@@ -112,7 +113,8 @@ class AgentParser() :
 		#pprint.pprint(labelOrder)
 		return labelOrder
 	
-	def get_agent_re_elt_pre(ov_param) :
+	@classmethod
+	def get_agent_re_elt_pre(cls, ov_param) :
 		agent_re_pre = ""
 		if ov_param['fontsize'] :
 			agent_re_pre += re_size
@@ -127,7 +129,8 @@ class AgentParser() :
 			agent_re_pre += re_bold
 		return agent_re_pre
 
-	def get_agent_re_elt_post(ov_param) :
+	@classmethod
+	def get_agent_re_elt_post(cls, ov_param) :
 		agent_re_post = ""
 		if ov_param['bold'] :
 			agent_re_post += re_nobold
@@ -142,7 +145,8 @@ class AgentParser() :
 			agent_re_post += re_nosize
 		return agent_re_post
 
-	def get_agent_re_elt(ov_param) :
+	@classmethod
+	def get_agent_re_elt(cls, ov_param) :
 		# special cases
 		if ov_param['type'] == 'linebrak' : # linebreaks translate into a single space
 			print("found linebreak !")
@@ -167,21 +171,25 @@ class AgentParser() :
 			r = r'(' + r + r')?'
 		return r
 
-	def labelOrder_to_agent_re(labelOrder) :
+	@classmethod
+	def labelOrder_to_agent_re(cls, labelOrder) :
 		agent_re = ""
 		for elt in labelOrder :
-			agent_re += AgentParser.get_agent_re_elt(elt)
+			agent_re += cls.get_agent_re_elt(elt)
 
-	def re_dmg_src() :
+	@classmethod
+	def re_dmg_src(cls) :
 		return AgentParser.m_re_damage_src
-	def re_dmg_target() :
+	@classmethod
+	def re_dmg_target(cls) :
 		return AgentParser.m_re_damage_target
+
 	def re_src(self) :
 		if self.is_init : return self.m_re_src
-		raise LateInitException
+		raise AgentParser.LateInitException
 	def re_target(self) :
 		if self.is_init : return self.m_re_target
-		raise LateInitException
+		raise AgentParser.LateInitException
 		
 	# Initialize an AgentParser object
 	# Either supply an agent_re, e.g from AgentParser presets, or an overview config file (either full or relative path), or no arguments for later initialization
@@ -466,7 +474,7 @@ class MedusaParser :
 		# OTHERS
 	
 		re_timestamped_other = re_time
-		#matching_rules.append(("other", "message", re.compile(re_timestamped_other)))
+		self.matching_rules.append(("other", "message", re.compile(re_timestamped_other)))
 	
 	
 	def build_matched_log_entry(self, rule, match_result, log_str) :
