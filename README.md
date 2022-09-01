@@ -6,9 +6,10 @@ Installing and First Use :
 	Medusa-collector is a collection of python3 sources, which can be run easily as usual python3 code.
 	However, you will need to meet a couple of requirements :
 	
-	install the development python3 package :
+	install the development python3 package and redis :
 		depending on the system you are running and the package manager you use, something like that should work
 			sudo apt-get install python3-dev
+			sudo apt-get install redis
 	
 	install the python-socketio package :
 		pip3 install python-socketio
